@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<settings>
+	<logdays>7</logdays>
+	<maxthreads>10</maxthreads>
+	<connectionstring>
+		Yours;
+	</connectionstring>
+	<scriptblock>
+		Param ($dr)
+		$s = Get-Date
+		$json = $dr | Select-Object * -ExcludeProperty ItemArray, Table, RowError, RowState, HasErrors | ConvertTo-Json
+		$ContentType = 'application/json'
+		$uri = 'http://cloud.10-4.com/atlas/frexapi/shipment/position'
+		try{
+			$resp = Invoke-RestMethod $uri -Method Post -Body $json -ContentType $ContentType -ErrorAction SilentlyContinue -TimeoutSec 60
+		}catch{
+			$resp = $_.Exception
+		}
+		[PSCustomObject]@{
+			start = $s
+			finish= Get-Date
+			json  = $json
+			resp  = $resp
+		}
+	</scriptblock>
+	<sql><![CDATA[
+select
+      [CarrierSCAC] = ???
+    , [FreightHaulerProviderXID] = ???
+    , [FreightProviderReferenceNumber] = ???
+    , [Latitude] = ???
+    , [Longitude] = ???
+    , [PositionEventType] = ???
+    , [PositionReportTime] = ???
+from
+    Yours
+	]]></sql>
+</settings>
